@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>叫車媒合平台 — 總站版</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      color: #e2e8f0;
+      background: linear-gradient(135deg, #0f0c29 0%, #1a1a4e 40%, #24243e 70%, #1b1040 100%);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ===== Hero ===== */
+    .hero {
+      text-align: center;
+      padding: 100px 24px 80px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.25) 0%, transparent 70%);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      background: linear-gradient(90deg, #a5b4fc, #c084fc, #f0abfc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+    .hero .subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: #a5b4fc;
+      max-width: 700px;
+      margin: 0 auto 40px;
+    }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block;
+      padding: 14px 36px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.4); }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+    .btn-outline { background: transparent; border: 2px solid #6366f1; color: #a5b4fc; }
+    .btn-outline:hover { background: rgba(99,102,241,0.15); }
+
+    /* ===== Section common ===== */
+    .section { padding: 80px 24px; }
+    .section-title {
+      text-align: center;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #e2e8f0;
+    }
+    .section-desc {
+      text-align: center;
+      color: #94a3b8;
+      max-width: 600px;
+      margin: 0 auto 48px;
+      font-size: 1.05rem;
+    }
+
+    /* ===== Architecture ===== */
+    .arch-wrapper {
+      max-width: 720px;
+      margin: 0 auto;
+      background: rgba(30, 27, 75, 0.6);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 20px;
+      padding: 40px;
+      backdrop-filter: blur(10px);
+    }
+    .arch-root {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.15rem;
+      padding: 16px 28px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+    }
+    .arch-branches { display: flex; flex-direction: column; gap: 16px; padding-left: 28px; border-left: 3px solid #6366f1; }
+    .arch-branch {
+      position: relative;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .arch-branch::before {
+      content: '';
+      position: absolute;
+      left: -29px;
+      top: 50%;
+      width: 28px;
+      height: 3px;
+      background: #6366f1;
+    }
+    .arch-branch-name { font-weight: 700; color: #c4b5fd; margin-bottom: 6px; }
+    .arch-branch-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .arch-tag {
+      background: rgba(139,92,246,0.2);
+      border: 1px solid rgba(139,92,246,0.3);
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #c4b5fd;
+    }
+
+    /* ===== Feature Grid ===== */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .feature-grid { grid-template-columns: 1fr; } }
+
+    .feature-card {
+      background: rgba(30, 27, 75, 0.5);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 16px;
+      padding: 32px 24px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); border-color: rgba(139,92,246,0.5); }
+    .feature-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+    .feature-card h3 { font-size: 1.15rem; font-weight: 700; color: #c4b5fd; margin-bottom: 8px; }
+    .feature-card p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; }
+
+    /* ===== Fleet Section ===== */
+    .fleet-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) { .fleet-grid { grid-template-columns: 1fr; } }
+
+    .fleet-card {
+      background: linear-gradient(160deg, rgba(30,27,75,0.7), rgba(49,46,100,0.5));
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 20px;
+      padding: 36px 28px;
+      text-align: center;
+    }
+    .fleet-card .fleet-icon { font-size: 2.5rem; margin-bottom: 16px; display: block; }
+    .fleet-card h3 { font-size: 1.25rem; font-weight: 700; color: #e2e8f0; margin-bottom: 12px; }
+    .fleet-card ul { list-style: none; text-align: left; }
+    .fleet-card ul li { padding: 6px 0; color: #94a3b8; font-size: 0.95rem; }
+    .fleet-card ul li::before { content: '→ '; color: #6366f1; font-weight: 700; }
+
+    /* ===== Comparison Table ===== */
+    .table-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(99,102,241,0.25);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    thead { background: linear-gradient(135deg, #312e64, #1e1b4b); }
+    thead th {
+      padding: 16px 20px;
+      text-align: center;
+      font-weight: 700;
+      color: #c4b5fd;
+      border-bottom: 2px solid rgba(99,102,241,0.3);
+    }
+    thead th:first-child { text-align: left; }
+    tbody tr { border-bottom: 1px solid rgba(99,102,241,0.1); }
+    tbody tr:nth-child(even) { background: rgba(30,27,75,0.3); }
+    tbody tr:nth-child(odd) { background: rgba(30,27,75,0.1); }
+    tbody tr:hover { background: rgba(99,102,241,0.1); }
+    tbody td { padding: 14px 20px; text-align: center; color: #cbd5e1; }
+    tbody td:first-child { text-align: left; font-weight: 600; color: #e2e8f0; }
+    .check { color: #6ee7b7; font-size: 1.2rem; }
+    .cross { color: #f87171; font-size: 1.2rem; }
+
+    /* ===== Tech Stack ===== */
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .tech-badge {
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .tech-badge:hover { background: rgba(99,102,241,0.25); transform: translateY(-2px); }
+
+    /* ===== Footer ===== */
+    footer {
+      text-align: center;
+      padding: 48px 24px;
+      border-top: 1px solid rgba(99,102,241,0.15);
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    footer .footer-title { font-size: 1.1rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px; }
+    footer span { display: inline-block; margin: 0 8px; }
+
+    /* ===== Divider ===== */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>叫車媒合平台 — 總站版</h1>
+      <p class="subtitle">一個平台，管理所有車隊。SaaS 多租戶架構，輕鬆擴展您的車隊帝國。</p>
+      <div class="hero-buttons">
+        <a href="#contact" class="btn btn-primary">立即諮詢</a>
+        <a href="#compare" class="btn btn-outline">查看標準版</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Architecture -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">平台架構</h2>
+      <p class="section-desc">單一平台集中管理，每個車隊獨立運營</p>
+      <div class="arch-wrapper">
+        <div class="arch-root">🏗️ 總站管理中心</div>
+        <div class="arch-branches">
+          <div class="arch-branch">
+            <div class="arch-branch-name">車隊 A</div>
+            <div class="arch-branch-tags">
+              <span class="arch-tag">管理後台</span>
+              <span class="arch-tag">乘客端</span>
+              <span class="arch-tag">司機端</span>
+            </div>
+          </div>
+          <div class="arch-branch">
+            <div class="arch-branch-name">車隊 B</div>
+            <div class="arch-branch-tags">
+              <span class="arch-tag">管理後台</span>
+              <span class="arch-tag">乘客端</span>
+              <span class="arch-tag">司機端</span>
+            </div>
+          </div>
+          <div class="arch-branch">
+            <div class="arch-branch-name">車隊 C</div>
+            <div class="arch-branch-tags">
+              <span class="arch-tag">管理後台</span>
+              <span class="arch-tag">乘客端</span>
+              <span class="arch-tag">司機端</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Core Features -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">核心功能</h2>
+      <p class="section-desc">為平台營運商打造的全方位管理工具</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <span class="feature-icon">🏛️</span>
+          <h3>總站儀表板</h3>
+          <p>跨車隊數據總覽，即時掌握所有車隊營運狀態</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🏢</span>
+          <h3>車隊管理</h3>
+          <p>建立、暫停、停用車隊，管理訂閱方案與司機上限</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📊</span>
+          <h3>跨車隊分析</h3>
+          <p>車隊排名、營運效率比較、平台健康度指標</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">⚙️</span>
+          <h3>系統設定</h3>
+          <p>試用期、註冊控制、維護模式、全域通知</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">👥</span>
+          <h3>管理員權限</h3>
+          <p>Super Admin / Platform Support 分級權限控管</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🔒</span>
+          <h3>資料隔離</h3>
+          <p>Firestore Security Rules 確保車隊間資料完全隔離</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Fleet Includes -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">每個車隊包含</h2>
+      <p class="section-desc">完整的三端系統，開箱即用</p>
+      <div class="fleet-grid">
+        <div class="fleet-card">
+          <span class="fleet-icon">📱</span>
+          <h3>乘客端 LIFF</h3>
+          <ul>
+            <li>LINE 官方帳號整合</li>
+            <li>地圖叫車</li>
+            <li>即時追蹤</li>
+            <li>行程紀錄</li>
+          </ul>
+        </div>
+        <div class="fleet-card">
+          <span class="fleet-icon">🚗</span>
+          <h3>司機端 APP</h3>
+          <ul>
+            <li>Flutter 雙平台</li>
+            <li>GPS 跳表計費</li>
+            <li>即時接單</li>
+            <li>導航整合</li>
+          </ul>
+        </div>
+        <div class="fleet-card">
+          <span class="fleet-icon">💻</span>
+          <h3>管理後台</h3>
+          <ul>
+            <li>司機管理</li>
+            <li>訂單管理</li>
+            <li>派單中心</li>
+            <li>費率設定</li>
+            <li>數據分析</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Comparison -->
+  <section class="section" id="compare">
+    <div class="container">
+      <h2 class="section-title">總站版 vs 標準版</h2>
+      <p class="section-desc">選擇最適合您的方案</p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>功能</th>
+              <th>總站版</th>
+              <th>標準版</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>管理多個車隊</td><td><span class="check">✅</span></td><td><span class="cross">❌</span></td></tr>
+            <tr><td>跨車隊數據分析</td><td><span class="check">✅</span></td><td><span class="cross">❌</span></td></tr>
+            <tr><td>車隊 CRUD</td><td><span class="check">✅</span></td><td><span class="cross">❌</span></td></tr>
+            <tr><td>訂閱方案管理</td><td><span class="check">✅</span></td><td><span class="cross">❌</span></td></tr>
+            <tr><td>司機數量限制</td><td>依方案</td><td>無上限（買斷）</td></tr>
+            <tr><td>乘客端 LIFF</td><td><span class="check">✅</span></td><td><span class="check">✅</span></td></tr>
+            <tr><td>司機端 APP</td><td><span class="check">✅</span></td><td><span class="check">✅</span></td></tr>
+            <tr><td>車隊管理後台</td><td><span class="check">✅</span></td><td><span class="check">✅</span></td></tr>
+            <tr><td>費率管理</td><td><span class="check">✅</span></td><td><span class="check">✅</span></td></tr>
+            <tr><td>派單中心</td><td><span class="check">✅</span></td><td><span class="check">✅</span></td></tr>
+            <tr><td>獨立部署</td><td><span class="check">✅</span></td><td><span class="check">✅</span></td></tr>
+            <tr><td>適合對象</td><td>平台營運商</td><td>單一車隊</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Tech Stack -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">技術棧</h2>
+      <p class="section-desc">採用現代化技術，穩定可靠</p>
+      <div class="tech-grid">
+        <span class="tech-badge">Next.js 16</span>
+        <span class="tech-badge">React 19</span>
+        <span class="tech-badge">Flutter</span>
+        <span class="tech-badge">Firebase</span>
+        <span class="tech-badge">LINE LIFF</span>
+        <span class="tech-badge">Google Maps</span>
+        <span class="tech-badge">Tailwind CSS</span>
+        <span class="tech-badge">TypeScript</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact">
+    <p class="footer-title">Taxi Dispatch Platform</p>
+    <p><span>版本：v2.0.0</span><span>|</span><span>Powered by Firebase + Next.js</span></p>
+  </footer>
+
+</body>
+</html>

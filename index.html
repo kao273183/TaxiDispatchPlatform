@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>叫車媒合平台 — 下一代智能叫車解決方案</title>
+<meta name="description" content="從乘客叫車到車隊管理，一站式解決方案。LINE 整合、即時派單、GPS 跳表計費。">
+<style>
+/* ===== Reset & Base ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  background: #0a0a0f;
+  color: #e0e0e0;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+
+/* ===== Utility ===== */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.gradient-text {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Scroll Fade-In ===== */
+.fade-section {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== Navbar ===== */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; width: 100%;
+  z-index: 1000;
+  padding: 18px 0;
+  transition: background 0.4s, backdrop-filter 0.4s, padding 0.3s, border-color 0.4s;
+  border-bottom: 1px solid transparent;
+}
+.navbar.scrolled {
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 12px 0;
+  border-bottom-color: rgba(102, 126, 234, 0.12);
+}
+.navbar .container { display: flex; justify-content: space-between; align-items: center; }
+.navbar-logo { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.navbar-logo .logo-icon { font-size: 1.4rem; }
+.navbar-links { display: flex; gap: 32px; }
+.navbar-links a {
+  font-size: 0.9rem; color: #a0a0b0; transition: color 0.3s; position: relative;
+}
+.navbar-links a:hover { color: #fff; }
+.navbar-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 2px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s;
+}
+.navbar-links a:hover::after { width: 100%; }
+
+.menu-toggle {
+  display: none; flex-direction: column; gap: 5px;
+  cursor: pointer; background: none; border: none; padding: 4px;
+}
+.menu-toggle span {
+  display: block; width: 24px; height: 2px;
+  background: #e0e0e0; border-radius: 2px;
+}
+
+/* ===== Hero ===== */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; position: relative; overflow: hidden;
+  padding: 120px 24px 80px;
+}
+.hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.hero-bg .orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(100px); opacity: 0.3;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+.hero-bg .orb:nth-child(1) {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #667eea, transparent 70%);
+  top: -10%; left: -10%; animation-duration: 22s;
+}
+.hero-bg .orb:nth-child(2) {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #764ba2, transparent 70%);
+  bottom: -10%; right: -10%; animation-duration: 18s; animation-delay: -5s;
+}
+.hero-bg .orb:nth-child(3) {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, #4facfe, transparent 70%);
+  top: 40%; left: 50%; animation-duration: 25s; animation-delay: -10s; opacity: 0.15;
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(60px, -40px) scale(1.1); }
+  50% { transform: translate(-30px, 60px) scale(0.95); }
+  75% { transform: translate(40px, 30px) scale(1.05); }
+}
+.hero-content { position: relative; z-index: 1; max-width: 800px; }
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800; margin-bottom: 24px; line-height: 1.2;
+}
+.hero .subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: #a0a0b8; margin-bottom: 48px;
+  max-width: 640px; margin-left: auto; margin-right: auto;
+}
+.hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+.btn {
+  display: inline-block; padding: 14px 36px; border-radius: 50px;
+  font-size: 1rem; font-weight: 600; cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s; border: none;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+  box-shadow: 0 4px 24px rgba(102, 126, 234, 0.35);
+}
+.btn-primary:hover { box-shadow: 0 8px 40px rgba(102, 126, 234, 0.5); }
+.btn-outline {
+  background: transparent; color: #e0e0e0;
+  border: 1.5px solid rgba(255,255,255,0.2);
+}
+.btn-outline:hover { border-color: rgba(102,126,234,0.6); background: rgba(102,126,234,0.08); }
+
+.scroll-hint {
+  position: absolute; bottom: 40px; left: 50%;
+  transform: translateX(-50%); z-index: 1;
+  animation: bounceDown 2s ease-in-out infinite;
+}
+.scroll-hint svg { width: 28px; height: 28px; stroke: #667eea; opacity: 0.6; }
+@keyframes bounceDown {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+  50% { transform: translateX(-50%) translateY(12px); opacity: 1; }
+}
+
+/* ===== Stats ===== */
+.stats { padding: 100px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.stat-card {
+  text-align: center; padding: 40px 20px; border-radius: 20px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15);
+}
+.stat-number {
+  font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 8px;
+}
+.stat-label { font-size: 0.95rem; color: #8888a0; }
+
+/* ===== Section Header ===== */
+.section-header { text-align: center; margin-bottom: 64px; }
+.section-header h2 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; margin-bottom: 16px;
+}
+.section-header p { color: #8888a0; font-size: 1.1rem; max-width: 560px; margin: 0 auto; }
+
+/* ===== Ecosystem ===== */
+.ecosystem { padding: 100px 0; }
+.eco-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.eco-card {
+  padding: 40px 32px; border-radius: 20px;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  position: relative; overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.eco-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: linear-gradient(90deg, #667eea, #764ba2);
+  opacity: 0; transition: opacity 0.3s;
+}
+.eco-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.12);
+}
+.eco-card:hover::after { opacity: 1; }
+.eco-icon { font-size: 2.5rem; margin-bottom: 20px; display: block; }
+.eco-card h3 { font-size: 1.3rem; margin-bottom: 20px; font-weight: 700; }
+.eco-card ul { display: flex; flex-direction: column; gap: 12px; }
+.eco-card li {
+  font-size: 0.95rem; color: #a0a0b8; padding-left: 20px; position: relative;
+}
+.eco-card li::before {
+  content: ''; position: absolute; left: 0; top: 10px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* ===== Flow / Timeline ===== */
+.flow { padding: 100px 0; }
+.timeline {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  position: relative; padding-top: 40px; gap: 8px;
+}
+.timeline::before {
+  content: ''; position: absolute; top: 58px;
+  left: 8%; right: 8%; height: 2px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #667eea); opacity: 0.4;
+}
+.timeline-step { flex: 1; text-align: center; position: relative; z-index: 1; }
+.timeline-dot {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px; font-size: 1.15rem;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.timeline-step:hover .timeline-dot {
+  transform: scale(1.2);
+  box-shadow: 0 0 30px rgba(102, 126, 234, 0.7);
+}
+.timeline-step h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.timeline-step p { font-size: 0.8rem; color: #8888a0; padding: 0 4px; }
+
+/* ===== Plans ===== */
+.plans { padding: 100px 0; }
+.plans-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 32px; max-width: 960px; margin: 0 auto;
+}
+.plan-card {
+  padding: 48px 40px; border-radius: 24px;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  position: relative; transition: transform 0.3s, box-shadow 0.3s; overflow: hidden;
+}
+.plan-card::before {
+  content: ''; position: absolute; inset: 0; border-radius: 24px; padding: 2px;
+  background: var(--card-border);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none; opacity: 0.5; transition: opacity 0.3s;
+}
+.plan-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+}
+.plan-card:hover::before { opacity: 1; }
+.plan-card.standard { --card-border: linear-gradient(135deg, #4facfe, #00f2fe); }
+.plan-card.platform { --card-border: linear-gradient(135deg, #667eea, #764ba2); }
+
+.badge {
+  position: absolute; top: 24px; right: 24px;
+  background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+  padding: 4px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+}
+.plan-price { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
+.plan-tagline { color: #8888a0; font-size: 0.95rem; margin-bottom: 28px; }
+.plan-features { margin-bottom: 28px; }
+.plan-features li {
+  padding: 6px 0; font-size: 0.92rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.plan-features li .check { color: #4facfe; flex-shrink: 0; }
+.plan-features li .cross { color: #555; flex-shrink: 0; }
+.plan-features li.disabled { color: #555; }
+.plan-target {
+  font-size: 0.85rem; color: #8888a0; margin-bottom: 28px;
+  padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.06);
+}
+.plan-btn {
+  display: block; width: 100%; text-align: center;
+  padding: 14px 0; border-radius: 50px;
+  font-size: 1rem; font-weight: 600;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.plan-card.standard .plan-btn {
+  background: linear-gradient(135deg, #4facfe, #00f2fe); color: #0a0a0f;
+}
+.plan-card.platform .plan-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+}
+.plan-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3); }
+
+/* ===== Tech Stack ===== */
+.tech { padding: 100px 0; }
+.tech-inner {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 24px; padding: 56px 48px;
+}
+.tech-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 36px; margin-bottom: 40px;
+}
+.tech-row h4 {
+  font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 2px; color: #667eea; margin-bottom: 14px; font-weight: 600;
+}
+.tech-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+.tech-tag {
+  padding: 7px 18px; border-radius: 8px; font-size: 0.85rem;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.2); color: #c0c0d8;
+  transition: background 0.3s, border-color 0.3s;
+}
+.tech-tag:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.4);
+}
+.tech-note {
+  text-align: center; color: #8888a0; font-size: 0.95rem; line-height: 1.8;
+  border-top: 1px solid rgba(255,255,255,0.06); padding-top: 32px;
+}
+
+/* ===== Contact ===== */
+.contact { padding: 100px 0; }
+.contact-form {
+  max-width: 680px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-size: 0.85rem; color: #a0a0b8; font-weight: 500; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 14px 18px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04); color: #e0e0e0;
+  font-size: 0.95rem; font-family: inherit;
+  transition: border-color 0.3s, box-shadow 0.3s; outline: none;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+.form-group textarea { resize: vertical; min-height: 100px; }
+.form-group select option { background: #1a1a2e; color: #e0e0e0; }
+.form-submit { grid-column: 1 / -1; text-align: center; margin-top: 12px; }
+.form-submit .btn { min-width: 220px; }
+
+/* ===== Footer ===== */
+.footer {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 48px 0 24px; margin-top: 60px;
+}
+.footer-main {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 32px; flex-wrap: wrap; gap: 20px;
+}
+.footer-logo { font-size: 1.1rem; font-weight: 700; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 0.9rem; color: #8888a0; transition: color 0.3s; }
+.footer-links a:hover { color: #e0e0e0; }
+.footer-copy { font-size: 0.85rem; color: #555; }
+.footer-bottom {
+  text-align: center; padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.8rem; color: #444;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .eco-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .tech-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    flex-direction: column; padding: 20px 24px; gap: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .navbar-links.open { display: flex; }
+  .menu-toggle { display: flex; }
+  .plans-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+  .timeline { flex-direction: column; align-items: center; gap: 28px; }
+  .timeline::before {
+    top: 0; bottom: 0; left: 50%; right: auto; width: 2px; height: 100%;
+  }
+  .timeline-step { width: 100%; max-width: 280px; }
+  .contact-form { grid-template-columns: 1fr; }
+  .footer-main { flex-direction: column; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; }
+  .tech-inner { padding: 36px 24px; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2rem; }
+  .plan-card { padding: 36px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="#" class="navbar-logo">
+      <span class="logo-icon">&#x1F695;</span> Taxi Dispatch Platform
+    </a>
+    <div class="navbar-links" id="navLinks">
+      <a href="#ecosystem">功能特色</a>
+      <a href="#plans">版本方案</a>
+      <a href="#tech">技術架構</a>
+      <a href="#contact">聯絡我們</a>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+  <div class="hero-content">
+    <h1><span class="gradient-text">下一代叫車媒合平台</span></h1>
+    <p class="subtitle">從乘客叫車到車隊管理，一站式解決方案。<br>LINE 整合、即時派單、GPS 跳表計費。</p>
+    <div class="hero-buttons">
+      <a href="#plans" class="btn btn-primary">查看方案</a>
+      <a href="#contact" class="btn btn-outline">立即諮詢</a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="stats fade-section" id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number gradient-text">3 端整合</div>
+        <div class="stat-label">乘客 / 司機 / 管理</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number gradient-text">&lt; 3 秒</div>
+        <div class="stat-label">平均媒合時間</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number gradient-text">99.9%</div>
+        <div class="stat-label">系統可用性</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number gradient-text">0 月費</div>
+        <div class="stat-label">標準版起</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ecosystem -->
+<section class="ecosystem fade-section" id="ecosystem">
+  <div class="container">
+    <div class="section-header">
+      <h2>一個平台，<span class="gradient-text">完整生態</span></h2>
+      <p>涵蓋乘客、司機與管理三端，打造無縫叫車體驗</p>
+    </div>
+    <div class="eco-grid">
+      <div class="eco-card">
+        <span class="eco-icon">&#x1F4F1;</span>
+        <h3>乘客端</h3>
+        <ul>
+          <li>LINE 一鍵登入</li>
+          <li>Google Maps 地圖叫車</li>
+          <li>即時司機追蹤</li>
+          <li>行程紀錄查詢</li>
+          <li>LINE 推播通知</li>
+        </ul>
+      </div>
+      <div class="eco-card">
+        <span class="eco-icon">&#x1F697;</span>
+        <h3>司機端</h3>
+        <ul>
+          <li>iOS / Android 雙平台</li>
+          <li>GPS 即時跳表計費</li>
+          <li>智能接單系統</li>
+          <li>一鍵導航整合</li>
+          <li>行程與收入統計</li>
+        </ul>
+      </div>
+      <div class="eco-card">
+        <span class="eco-icon">&#x1F4BB;</span>
+        <h3>管理後台</h3>
+        <ul>
+          <li>即時營運儀表板</li>
+          <li>司機 / 訂單管理</li>
+          <li>派單控制中心</li>
+          <li>費率彈性設定</li>
+          <li>數據分析報表</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Flow / Timeline -->
+<section class="flow fade-section" id="flow">
+  <div class="container">
+    <div class="section-header">
+      <h2>從叫車到完成，<span class="gradient-text">全程智能化</span></h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-step">
+        <div class="timeline-dot">&#x1F64B;</div>
+        <h4>乘客叫車</h4>
+        <p>LINE 上輕鬆發起叫車需求</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-dot">&#x1F50D;</div>
+        <h4>智能媒合</h4>
+        <p>系統依距離與狀態自動配對</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-dot">&#x1F697;</div>
+        <h4>司機接單</h4>
+        <p>APP 推播通知，一鍵接單</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-dot">&#x1F4CD;</div>
+        <h4>前往接客</h4>
+        <p>導航指引，乘客即時追蹤</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-dot">&#x1F6E3;&#xFE0F;</div>
+        <h4>行程中</h4>
+        <p>GPS 跳表計費，路徑記錄</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-dot">&#x2705;</div>
+        <h4>行程完成</h4>
+        <p>自動結算，推播行程摘要</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Plans -->
+<section class="plans fade-section" id="plans">
+  <div class="container">
+    <div class="section-header">
+      <h2>選擇適合您的<span class="gradient-text">方案</span></h2>
+      <p>無論是單一車隊還是多車隊管理，我們都有最佳解決方案</p>
+    </div>
+    <div class="plans-grid">
+      <!-- Standard -->
+      <div class="plan-card standard">
+        <div class="plan-price" style="background:linear-gradient(135deg,#4facfe,#00f2fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">一次買斷</div>
+        <div class="plan-tagline">專為單一車隊打造</div>
+        <ul class="plan-features">
+          <li><span class="check">&#x2705;</span> 乘客端 LINE LIFF</li>
+          <li><span class="check">&#x2705;</span> 司機端 Flutter APP</li>
+          <li><span class="check">&#x2705;</span> 管理後台</li>
+          <li><span class="check">&#x2705;</span> 司機無上限</li>
+          <li><span class="check">&#x2705;</span> 原始碼交付</li>
+          <li><span class="check">&#x2705;</span> 3 個月保固</li>
+          <li><span class="check">&#x2705;</span> 獨立 Firebase</li>
+          <li><span class="check">&#x2705;</span> 獨立 LINE 官方帳號</li>
+          <li class="disabled"><span class="cross">&#x274C;</span> 多車隊管理</li>
+          <li class="disabled"><span class="cross">&#x274C;</span> 跨車隊分析</li>
+        </ul>
+        <div class="plan-target">適合：個體車隊、計程車行</div>
+        <a href="standard_intro.html" class="plan-btn">了解標準版 &#x2192;</a>
+      </div>
+      <!-- Platform -->
+      <div class="plan-card platform">
+        <div class="badge">推薦</div>
+        <div class="plan-price gradient-text">訂閱制</div>
+        <div class="plan-tagline">一個平台管理所有車隊</div>
+        <ul class="plan-features">
+          <li><span class="check">&#x2705;</span> 包含標準版所有功能</li>
+          <li><span class="check">&#x2705;</span> 總站管理儀表板</li>
+          <li><span class="check">&#x2705;</span> 車隊 CRUD 管理</li>
+          <li><span class="check">&#x2705;</span> 跨車隊數據分析</li>
+          <li><span class="check">&#x2705;</span> 訂閱方案管理</li>
+          <li><span class="check">&#x2705;</span> 多管理員權限</li>
+          <li><span class="check">&#x2705;</span> 車隊資料隔離</li>
+          <li><span class="check">&#x2705;</span> 系統全域設定</li>
+        </ul>
+        <div class="plan-target">適合：平台營運商、車隊聯盟</div>
+        <a href="platform_intro.html" class="plan-btn">了解總站版 &#x2192;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tech Stack -->
+<section class="tech fade-section" id="tech">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="gradient-text">企業級</span>技術棧</h2>
+    </div>
+    <div class="tech-inner">
+      <div class="tech-grid">
+        <div class="tech-row">
+          <h4>前端</h4>
+          <div class="tech-tags">
+            <span class="tech-tag">Next.js 16</span>
+            <span class="tech-tag">React 19</span>
+            <span class="tech-tag">Flutter 3</span>
+            <span class="tech-tag">Tailwind CSS</span>
+          </div>
+        </div>
+        <div class="tech-row">
+          <h4>後端</h4>
+          <div class="tech-tags">
+            <span class="tech-tag">Firebase</span>
+            <span class="tech-tag">Cloud Functions</span>
+            <span class="tech-tag">Firestore</span>
+            <span class="tech-tag">Realtime DB</span>
+          </div>
+        </div>
+        <div class="tech-row">
+          <h4>整合</h4>
+          <div class="tech-tags">
+            <span class="tech-tag">LINE LIFF SDK</span>
+            <span class="tech-tag">Google Maps API</span>
+            <span class="tech-tag">LINE Messaging API</span>
+          </div>
+        </div>
+        <div class="tech-row">
+          <h4>部署</h4>
+          <div class="tech-tags">
+            <span class="tech-tag">Vercel</span>
+            <span class="tech-tag">Firebase Hosting</span>
+            <span class="tech-tag">TestFlight</span>
+          </div>
+        </div>
+      </div>
+      <div class="tech-note">
+        採用 Google Firebase 無伺服器架構，自動擴展，免維運負擔。<br>搭配 LINE 生態系整合，乘客零門檻使用。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="contact fade-section" id="contact">
+  <div class="container">
+    <div class="section-header">
+      <h2>開始打造您的<span class="gradient-text">叫車平台</span></h2>
+      <p>留下您的聯絡方式，我們將在 24 小時內回覆</p>
+    </div>
+    <form class="contact-form" onsubmit="event.preventDefault(); alert('感謝您的諮詢，我們將盡快與您聯繫！');">
+      <div class="form-group">
+        <label for="company">公司名稱 / 車隊名稱</label>
+        <input type="text" id="company" placeholder="例：大都會車隊">
+      </div>
+      <div class="form-group">
+        <label for="contactName">聯絡人</label>
+        <input type="text" id="contactName" placeholder="您的姓名">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label for="phone">電話</label>
+        <input type="tel" id="phone" placeholder="09xx-xxx-xxx">
+      </div>
+      <div class="form-group full">
+        <label for="plan">感興趣的方案</label>
+        <select id="plan">
+          <option value="">請選擇方案</option>
+          <option value="standard">標準版</option>
+          <option value="platform">總站版</option>
+          <option value="both">都想了解</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label for="note">備註</label>
+        <textarea id="note" placeholder="請描述您的需求或問題..."></textarea>
+      </div>
+      <div class="form-submit">
+        <button type="submit" class="btn btn-primary">送出諮詢</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-main">
+      <div class="footer-logo">&#x1F695; Taxi Dispatch Platform</div>
+      <div class="footer-links">
+        <a href="#ecosystem">功能特色</a>
+        <a href="#plans">版本方案</a>
+        <a href="#tech">技術架構</a>
+        <a href="#contact">聯絡我們</a>
+      </div>
+      <div class="footer-copy">&copy; 2025 All rights reserved.</div>
+    </div>
+    <div class="footer-bottom">
+      Powered by Firebase + Next.js + Flutter + LINE
+    </div>
+  </div>
+</footer>
+
+<!-- JS: Scroll effects + Mobile menu -->
+<script>
+// Navbar scroll
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// Mobile menu
+const menuToggle = document.getElementById('menuToggle');
+const navLinks = document.getElementById('navLinks');
+menuToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+});
+navLinks.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => navLinks.classList.remove('open'));
+});
+
+// Scroll fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-section').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

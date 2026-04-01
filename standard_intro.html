@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>叫車媒合平台 — 標準版</title>
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      color: #1e293b;
+      line-height: 1.7;
+      background: #f0f9ff;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; }
+
+    /* ===== Utility ===== */
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5em;
+      background: linear-gradient(135deg, #0ea5e9, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-sub {
+      text-align: center;
+      color: #64748b;
+      font-size: 1.05rem;
+      margin-bottom: 3rem;
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      position: relative;
+      background: linear-gradient(135deg, #0c4a6e 0%, #0e7490 40%, #059669 100%);
+      color: #fff;
+      text-align: center;
+      padding: 100px 24px 90px;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.08) 0%, transparent 60%),
+                  radial-gradient(circle at 70% 80%, rgba(16,185,129,0.15) 0%, transparent 50%);
+      animation: heroFloat 20s ease-in-out infinite;
+    }
+    @keyframes heroFloat {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-20px, -15px); }
+    }
+    .hero > * { position: relative; z-index: 1; }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.5em;
+    }
+    .hero p {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      max-width: 640px;
+      margin: 0 auto 2.5rem;
+      opacity: 0.92;
+      line-height: 1.8;
+    }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block;
+      padding: 14px 36px;
+      border-radius: 50px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: #fff;
+      color: #0e7490;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      background: #ecfdf5;
+    }
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* ===== Three Systems ===== */
+    .systems { padding: 80px 0; }
+    .systems-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .system-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 28px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      transition: all 0.35s ease;
+      border: 1px solid rgba(14,116,144,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .system-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #0ea5e9, #10b981);
+      border-radius: 20px 20px 0 0;
+    }
+    .system-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(14,116,144,0.12);
+    }
+    .system-card .icon {
+      font-size: 2.4rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .system-card h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+      color: #0e7490;
+    }
+    .system-card .subtitle {
+      font-size: 0.9rem;
+      color: #10b981;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+    .system-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .system-card ul li {
+      padding: 7px 0;
+      padding-left: 24px;
+      position: relative;
+      font-size: 0.95rem;
+      color: #334155;
+    }
+    .system-card ul li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #10b981;
+      font-weight: 700;
+    }
+
+    /* ===== Timeline ===== */
+    .timeline-section {
+      padding: 80px 0;
+      background: linear-gradient(180deg, #f0fdfa 0%, #f0f9ff 100%);
+    }
+    .timeline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      padding: 40px 0 20px;
+      overflow-x: auto;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 58px;
+      left: 5%;
+      right: 5%;
+      height: 4px;
+      background: linear-gradient(90deg, #0ea5e9, #10b981);
+      border-radius: 2px;
+    }
+    .timeline-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 110px;
+      position: relative;
+      z-index: 1;
+    }
+    .timeline-dot {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0ea5e9, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: 0 3px 12px rgba(14,116,144,0.3);
+      margin-bottom: 14px;
+    }
+    .timeline-label {
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #334155;
+      max-width: 100px;
+      line-height: 1.5;
+    }
+
+    /* ===== Why Standard ===== */
+    .why-section { padding: 80px 0; }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .why-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      transition: all 0.35s ease;
+      border: 1px solid rgba(14,116,144,0.06);
+    }
+    .why-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 35px rgba(14,116,144,0.1);
+    }
+    .why-card .why-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .why-card h4 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0e7490;
+      margin-bottom: 10px;
+    }
+    .why-card p {
+      font-size: 0.92rem;
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    /* ===== Pricing ===== */
+    .pricing-section {
+      padding: 80px 0;
+      background: linear-gradient(180deg, #f0f9ff 0%, #ecfdf5 100%);
+    }
+    .pricing-card {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.07);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid rgba(14,116,144,0.08);
+    }
+    .pricing-left, .pricing-right {
+      padding: 44px 40px;
+    }
+    .pricing-left {
+      background: linear-gradient(135deg, #0c4a6e, #0e7490);
+      color: #fff;
+    }
+    .pricing-left h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      opacity: 0.85;
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+    .pricing-left .price {
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+    .pricing-left .price span {
+      font-size: 1rem;
+      font-weight: 400;
+      opacity: 0.75;
+    }
+    .pricing-left ul {
+      list-style: none;
+      padding: 0;
+    }
+    .pricing-left ul li {
+      padding: 8px 0;
+      padding-left: 26px;
+      position: relative;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+    .pricing-left ul li::before {
+      content: '✦';
+      position: absolute;
+      left: 0;
+      color: #6ee7b7;
+    }
+    .pricing-right h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0e7490;
+      margin-bottom: 20px;
+    }
+    .cost-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.93rem;
+    }
+    .cost-item:last-child { border-bottom: none; }
+    .cost-label { color: #64748b; }
+    .cost-value { font-weight: 700; color: #334155; }
+    .cost-highlight {
+      margin-top: 20px;
+      padding: 16px;
+      background: linear-gradient(135deg, #ecfdf5, #f0fdfa);
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 700;
+      color: #059669;
+      font-size: 1rem;
+    }
+
+    /* ===== Architecture ===== */
+    .arch-section { padding: 80px 0; }
+    .arch-diagram {
+      max-width: 700px;
+      margin: 0 auto;
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+    }
+    .arch-box {
+      background: linear-gradient(135deg, #0e7490, #059669);
+      color: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      text-align: center;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      box-shadow: 0 6px 25px rgba(14,116,144,0.2);
+      position: relative;
+    }
+    .arch-box h4 {
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+    .arch-lines {
+      display: flex;
+      justify-content: center;
+      gap: 100px;
+      padding: 0;
+      position: relative;
+      height: 50px;
+    }
+    .arch-line {
+      width: 2px;
+      height: 50px;
+      background: linear-gradient(180deg, #0ea5e9, #10b981);
+    }
+    .arch-nodes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .arch-node {
+      background: #fff;
+      border: 2px solid #0ea5e9;
+      border-radius: 12px;
+      padding: 18px 14px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0e7490;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+      transition: all 0.3s ease;
+    }
+    .arch-node:hover {
+      border-color: #10b981;
+      box-shadow: 0 6px 25px rgba(16,185,129,0.15);
+    }
+    .arch-node small {
+      display: block;
+      font-weight: 400;
+      color: #94a3b8;
+      font-size: 0.78rem;
+      margin-top: 4px;
+    }
+    .arch-line-extra {
+      display: flex;
+      justify-content: center;
+      height: 40px;
+    }
+    .arch-line-extra .arch-line { height: 40px; }
+    .arch-node-bottom {
+      max-width: 240px;
+      margin: 0 auto;
+      background: #25d366;
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 20px;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.25);
+    }
+    .arch-node-bottom small {
+      display: block;
+      font-weight: 400;
+      font-size: 0.78rem;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    /* ===== Tech Stack ===== */
+    .tech-section {
+      padding: 80px 0;
+      background: linear-gradient(180deg, #ecfdf5 0%, #f0f9ff 100%);
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      background: #fff;
+      color: #0e7490;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border: 1px solid rgba(14,116,144,0.1);
+      transition: all 0.3s ease;
+    }
+    .badge:hover {
+      background: linear-gradient(135deg, #0ea5e9, #10b981);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(14,116,144,0.2);
+    }
+
+    /* ===== FAQ ===== */
+    .faq-section { padding: 80px 0; }
+    .faq-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .faq-item {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.04);
+      border: 1px solid rgba(14,116,144,0.06);
+      transition: box-shadow 0.3s ease;
+    }
+    .faq-item:hover {
+      box-shadow: 0 4px 24px rgba(14,116,144,0.1);
+    }
+    .faq-q {
+      padding: 20px 28px;
+      font-weight: 700;
+      font-size: 1.02rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #0e7490;
+      user-select: none;
+    }
+    .faq-q::after {
+      content: '＋';
+      font-size: 1.3rem;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+    .faq-item.open .faq-q::after {
+      content: '−';
+    }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-a {
+      max-height: 200px;
+    }
+    .faq-a-inner {
+      padding: 0 28px 20px;
+      color: #64748b;
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      background: linear-gradient(135deg, #0c4a6e, #064e3b);
+      color: rgba(255,255,255,0.75);
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 0.88rem;
+      line-height: 2;
+    }
+    .footer strong {
+      color: #fff;
+      font-size: 1rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ===== RWD ===== */
+    @media (max-width: 960px) {
+      .systems-grid { grid-template-columns: 1fr; max-width: 500px; margin: 0 auto; }
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-card { grid-template-columns: 1fr; }
+      .arch-lines { gap: 60px; }
+      .timeline { gap: 8px; padding-bottom: 10px; }
+    }
+    @media (max-width: 640px) {
+      .hero { padding: 70px 20px 60px; }
+      .section-title { font-size: 1.6rem; }
+      .why-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; }
+      .pricing-left, .pricing-right { padding: 30px 24px; }
+      .timeline { flex-wrap: wrap; justify-content: center; gap: 16px; }
+      .timeline::before { display: none; }
+      .timeline-item { min-width: 80px; }
+      .arch-nodes { grid-template-columns: 1fr; max-width: 260px; margin: 0 auto; }
+      .arch-lines { gap: 0; justify-content: center; }
+      .arch-lines .arch-line:not(:first-child) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== Hero ==================== -->
+<section class="hero">
+  <div>
+    <h1>叫車媒合平台 — 標準版</h1>
+    <p>一套完整系統，專為您的車隊打造。<br>買斷制，司機無上限，零月費。</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn btn-primary">立即諮詢</a>
+      <a href="#" class="btn btn-outline">查看總站版</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 三大系統 ==================== -->
+<section class="systems">
+  <div class="container">
+    <h2 class="section-title">三大系統，一站整合</h2>
+    <p class="section-sub">從乘客叫車到後台管理，所有環節一次到位</p>
+    <div class="systems-grid">
+
+      <div class="system-card">
+        <span class="icon">📱</span>
+        <h3>乘客端</h3>
+        <div class="subtitle">LINE LIFF 叫車</div>
+        <ul>
+          <li>LINE 一鍵登入，免註冊</li>
+          <li>Google Maps 地圖選點</li>
+          <li>即時叫車 + 等待配對</li>
+          <li>司機位置即時追蹤</li>
+          <li>行程紀錄查詢</li>
+        </ul>
+      </div>
+
+      <div class="system-card">
+        <span class="icon">🚗</span>
+        <h3>司機端</h3>
+        <div class="subtitle">Flutter APP</div>
+        <ul>
+          <li>iOS / Android 雙平台</li>
+          <li>GPS 即時跳表計費</li>
+          <li>接單 / 拒單彈窗</li>
+          <li>行程狀態切換</li>
+          <li>一鍵導航整合</li>
+        </ul>
+      </div>
+
+      <div class="system-card">
+        <span class="icon">💻</span>
+        <h3>管理後台</h3>
+        <div class="subtitle">Next.js</div>
+        <ul>
+          <li>即時儀表板</li>
+          <li>司機管理</li>
+          <li>訂單管理 + 狀態篩選</li>
+          <li>派單控制中心</li>
+          <li>費率管理</li>
+          <li>數據分析報表</li>
+          <li>車隊設定</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 運作流程 ==================== -->
+<section class="timeline-section">
+  <div class="container">
+    <h2 class="section-title">運作流程</h2>
+    <p class="section-sub">從叫車到完成，一氣呵成</p>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot">1</div>
+        <div class="timeline-label">乘客叫車</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">2</div>
+        <div class="timeline-label">系統媒合</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">3</div>
+        <div class="timeline-label">司機接單</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">4</div>
+        <div class="timeline-label">前往接客</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">5</div>
+        <div class="timeline-label">行程中<br>跳表計費</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">6</div>
+        <div class="timeline-label">行程完成</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">7</div>
+        <div class="timeline-label">LINE 通知</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 為什麼選擇標準版 ==================== -->
+<section class="why-section">
+  <div class="container">
+    <h2 class="section-title">為什麼選擇標準版</h2>
+    <p class="section-sub">專為獨立車隊設計的最佳方案</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <span class="why-icon">💰</span>
+        <h4>買斷制</h4>
+        <p>一次付費，永久使用，無月費負擔</p>
+      </div>
+      <div class="why-card">
+        <span class="why-icon">🚫</span>
+        <h4>無司機上限</h4>
+        <p>不限司機數量，車隊規模自由擴展</p>
+      </div>
+      <div class="why-card">
+        <span class="why-icon">🔧</span>
+        <h4>完全自主</h4>
+        <p>原始碼交付，可自行修改與維護</p>
+      </div>
+      <div class="why-card">
+        <span class="why-icon">☁️</span>
+        <h4>獨立部署</h4>
+        <p>專屬 Firebase + LINE 官方帳號，資料完全掌控</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 費用透明 ==================== -->
+<section class="pricing-section">
+  <div class="container">
+    <h2 class="section-title">費用透明</h2>
+    <p class="section-sub">清楚的價格，沒有隱藏費用</p>
+    <div class="pricing-card">
+
+      <div class="pricing-left">
+        <h3>開發費用</h3>
+        <div class="price">NT$ ______ <span>（一次性）</span></div>
+        <ul>
+          <li>乘客端（LINE LIFF）</li>
+          <li>司機端（Flutter APP）</li>
+          <li>管理後台（Next.js）</li>
+          <li>後端（Firebase Cloud Functions）</li>
+          <li>3 個月免費 Bug 修復保固</li>
+        </ul>
+      </div>
+
+      <div class="pricing-right">
+        <h3>每月營運成本</h3>
+        <div class="cost-item">
+          <span class="cost-label">Firebase</span>
+          <span class="cost-value">$0–50 USD/月</span>
+        </div>
+        <div class="cost-item">
+          <span class="cost-label">Google Maps</span>
+          <span class="cost-value">$0（$200 免費額度）</span>
+        </div>
+        <div class="cost-item">
+          <span class="cost-label">LINE 官方帳號</span>
+          <span class="cost-value">免費方案可用</span>
+        </div>
+        <div class="cost-item">
+          <span class="cost-label">Apple Developer</span>
+          <span class="cost-value">約 NT$3,200/年</span>
+        </div>
+        <div class="cost-highlight">
+          預估月費：$0–50 USD<br>小型車隊幾乎免費 🎉
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 部署架構 ==================== -->
+<section class="arch-section">
+  <div class="container">
+    <h2 class="section-title">部署架構</h2>
+    <p class="section-sub">清晰的系統架構，每個元件各司其職</p>
+    <div class="arch-diagram">
+
+      <div class="arch-box">
+        <h4>Firebase（你的專案）</h4>
+        Auth / Firestore / Cloud Functions
+      </div>
+
+      <div class="arch-lines">
+        <div class="arch-line"></div>
+        <div class="arch-line"></div>
+        <div class="arch-line"></div>
+      </div>
+
+      <div class="arch-nodes">
+        <div class="arch-node">管理後台<small>Vercel</small></div>
+        <div class="arch-node">乘客 LIFF<small>Vercel</small></div>
+        <div class="arch-node">司機 APP<small>Flutter</small></div>
+      </div>
+
+      <div class="arch-line-extra">
+        <div class="arch-line"></div>
+      </div>
+
+      <div class="arch-node-bottom">LINE 官方帳號<small>（你的帳號）</small></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 技術棧 ==================== -->
+<section class="tech-section">
+  <div class="container">
+    <h2 class="section-title">技術棧</h2>
+    <p class="section-sub">採用業界主流技術，穩定可靠</p>
+    <div class="badges">
+      <span class="badge">Next.js 16</span>
+      <span class="badge">React 19</span>
+      <span class="badge">Flutter</span>
+      <span class="badge">Firebase</span>
+      <span class="badge">LINE LIFF</span>
+      <span class="badge">Google Maps</span>
+      <span class="badge">Tailwind CSS</span>
+      <span class="badge">TypeScript</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FAQ ==================== -->
+<section class="faq-section" id="contact">
+  <div class="container">
+    <h2 class="section-title">常見問題</h2>
+    <p class="section-sub">您可能想了解的事</p>
+    <div class="faq-list">
+
+      <div class="faq-item open">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Q: 買斷後可以自己改程式碼嗎？
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">A: 可以，交付完整原始碼，您可自行或委託第三方修改。</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Q: 需要自己準備什麼？
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">A: Apple Developer 帳號、Google 帳號（Firebase）、LINE 官方帳號、Google Maps API Key。</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Q: 司機數量有限制嗎？
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">A: 沒有，標準版不限司機數量。</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Q: 保固期後怎麼辦？
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">A: 可另簽維護合約，或自行維護。</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          Q: 可以加金流嗎？
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">A: 可以，金流整合為加購項目，另行報價。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Footer ==================== -->
+<footer class="footer">
+  <div class="container">
+    <strong>Taxi Dispatch Platform — Standard Edition</strong>
+    版本：v1.0.0<br>
+    Powered by Firebase + Next.js + Flutter
+  </div>
+</footer>
+
+</body>
+</html>
